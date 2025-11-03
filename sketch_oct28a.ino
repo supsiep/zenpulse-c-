@@ -53,22 +53,29 @@ void calculateBPM() {
 
 void alarm() {
   if (BPM > 100 || BPM < 60) {
-    for (int i = 0; i < 10; i++) {
-      CircuitPlayground.setPixelColor(i, 0, 255, 0);
-    }
-    for (int i = 0; i < 3; i++) {
-     CircuitPlayground.playTone(440, 300);
-     CircuitPlayground.playTone(392, 300);
-     CircuitPlayground.playTone(349, 300);
+    for (int i = 0; i < 5; i++) {
+      CircuitPlayground.setAllPixels(255, 0, 0);
+      CircuitPlayground.playTone(500, 100);
+      CircuitPlayground.clearPixels();
+      CircuitPlayground.playTone(400, 100);
+      CircuitPlayground.setAllPixels(255, 0, 0);
+      CircuitPlayground.playTone(500, 100);
+      CircuitPlayground.clearPixels();
+      CircuitPlayground.playTone(400, 100);
     }
   }
 }
 
 void alarmTimer() {
-  for (int i = 0; i < 5; i++) {
-    CircuitPlayground.playTone(500, 100);
-    CircuitPlayground.playTone(400, 100);
-    CircuitPlayground.playTone(500, 100);
+  for (int i = 0; i < 3; i++) {
+    CircuitPlayground.showRing("green green black black black black black black black black");
+    CircuitPlayground.playTone(440, 300);
+    CircuitPlayground.showRing("green green black green green black black black black black");
+    CircuitPlayground.playTone(392, 300);
+    CircuitPlayground.showRing("green green black green green green green black black black");
+    CircuitPlayground.playTone(349, 300);
+    CircuitPlayground.showRing("green green black green green green green black green green");
+    CircuitPlayground.playTone(392, 300);
   }
 }
 
@@ -132,7 +139,7 @@ void loop() {
       calculateBPM();
       bpmCalculated++;
       if (bpmCalculated >= 5) {
-        //alarm();//alarm moet nog gevuld worden
+        alarm();
       }
     }
   }
