@@ -18,7 +18,6 @@ int valueCount = 0;
 int totalValue = 0;
 int timerActive = 0;
 int clock = 0;
-//int timerTimeLeft = [];
 
 const unsigned long intervalBeginAfterFive = 20000;
 const unsigned long intervalGetValue = 10;
@@ -28,21 +27,16 @@ unsigned long previousBeginAfterFive = 0;
 unsigned long previousGetValue = 0;
 unsigned long previousTimer = 0;
 
-
-
-
 void checkForHeartBeat() {
   if (lastValue < averageValue * 1.5 && inputValue >= averageValue * 1.5) {
     totalHeartBeats += 1;
     heartBeatsThisRound += 1;
-    //Serial.println(totalHeartBeats);
   }
 }
 
 void calculateBPM() {
   BPM = heartBeatsThisRound * 60 / updateTimer;
   heartBeatsThisRound = 0;
-  //Serial.println("BPM: " + BPM);
   bleuart.println("--------------------");
   bleuart.print("BPM: ");
   bleuart.println(BPM);
@@ -54,11 +48,15 @@ void calculateBPM() {
 void alarm() {
   if (BPM > 100 || BPM < 60) {
     for (int i = 0; i < 5; i++) {
-      CircuitPlayground.setAllPixels(255, 0, 0);
+      for (int j = 0; j < 10; j++) {
+        CircuitPlayground.setPixelColor(j, 255, 0, 0);
+      }
       CircuitPlayground.playTone(500, 100);
       CircuitPlayground.clearPixels();
       CircuitPlayground.playTone(400, 100);
-      CircuitPlayground.setAllPixels(255, 0, 0);
+      for (int j = 0; j < 10; j++) {
+        CircuitPlayground.setPixelColor(j, 255, 0, 0);
+      }
       CircuitPlayground.playTone(500, 100);
       CircuitPlayground.clearPixels();
       CircuitPlayground.playTone(400, 100);
@@ -66,32 +64,24 @@ void alarm() {
   }
 }
 
-void alarmTimer() {
-  for (int i = 0; i < 3; i++) {
-    CircuitPlayground.showRing("green green black black black black black black black black");
-    CircuitPlayground.playTone(440, 300);
-    CircuitPlayground.showRing("green green black green green black black black black black");
-    CircuitPlayground.playTone(392, 300);
-    CircuitPlayground.showRing("green green black green green green green black black black");
-    CircuitPlayground.playTone(349, 300);
-    CircuitPlayground.showRing("green green black green green green green black green green");
-    CircuitPlayground.playTone(392, 300);
-  }
-}
-
-void timerLights(){
-  //lights
-}
-
 void timerAlarm(){
+  CircuitPlayground.setPixelColor(0, 0, 255, 0);
   CircuitPlayground.playTone(294, 250);
+  CircuitPlayground.setPixelColor(1, 0, 255, 0);
   CircuitPlayground.playTone(294, 250);
+  CircuitPlayground.setPixelColor(3, 0, 255, 0);
   CircuitPlayground.playTone(440, 250);
+  CircuitPlayground.setPixelColor(4, 0, 255, 0);
   CircuitPlayground.playTone(294, 250);
+  CircuitPlayground.setPixelColor(5, 0, 255, 0);
   CircuitPlayground.playTone(523, 250);
+  CircuitPlayground.setPixelColor(6, 0, 255, 0);
   CircuitPlayground.playTone(440, 250);
+  CircuitPlayground.setPixelColor(8, 0, 255, 0);
   CircuitPlayground.playTone(392, 250);
+  CircuitPlayground.setPixelColor(9, 0, 255, 0);
   CircuitPlayground.playTone(349, 250);
+  CircuitPlayground.clearPixels();
 }
 
 void setup() {
@@ -128,7 +118,8 @@ void loop() {
     previousTimer += intervalTimer;
     if (clock > 0) {
       clock--;
-    } else if (timerActive) {
+    } 
+    if (clock == 0 && timerActive) {
       timerAlarm();
     }
   }
@@ -148,9 +139,9 @@ void loop() {
     previousGetValue += intervalGetValue;
     lastValue = inputValue;
     inputValue = analogRead(A1);
-    if (inputValue < 0) inputValue = 0;       //optioneel
-    if (inputValue > 1023) inputValue = 1023; //optioneel
-    //Serial.println(inputValue);
+    if (inputValue < 0) inputValue = 0;
+    if (inputValue > 1023) inputValue = 1023;
+    //bleuart.println(inputValue);
     valueCount++;
     totalValue += inputValue;
     averageValue = round(totalValue / valueCount);
@@ -159,25 +150,7 @@ void loop() {
     //Serial.println(totalHeartBeats);
   }
 
-
-  /*
-  if (curruntMillis - previousButtons >= intervalButtons) {
-    
-    if (CircuitPlayground.leftButton()) {
-      if (timerActive == 0) {
-        timerTimeLeft[timerSelected]++;
-        if (timerTimeLeft[0] > 9 || timerTimeLeft[2 > 9]) {
-          timerTimeLeft[timerSelected] = 0;
-        }
-      }
-    }
-
-  }
-  */
-  
-
-
-  //Check for messages from the phone
+  //lees input clock
   while (bleuart.available()) {
 
     int input = bleuart.read();
@@ -201,46 +174,13 @@ void loop() {
       }
     }
 
-    
-
-    // Change NeoPixel color depending on command
-    // if (c == 'r') CircuitPlayground.setPixelColor(0, 255, 0, 0);
-    // if (c == 'g') CircuitPlayground.setPixelColor(0, 0, 255, 0);
-    // if (c == 'b') CircuitPlayground.setPixelColor(0, 0, 0, 255);
     bleuart.write(clock);
     CircuitPlayground.setPixelColor(clock, 0, 0, 255);
   }
 
-  // Send Serial Monitor messages back to the phone
+  // lees input clock?
   if (Serial.available()) {
     clock = Serial.read();
     bleuart.write(clock);
   }
-
-  // //Check for messages from the phone
-  // while (bleuart.available()) {
-  //   char c = bleuart.read();
-  //   Serial.write(c);
-
-  //   // Change NeoPixel color depending on command
-  //   if (c == 'r') CircuitPlayground.setPixelColor(0, 255, 0, 0);
-  //   if (c == 'g') CircuitPlayground.setPixelColor(0, 0, 255, 0);
-  //   if (c == 'b') CircuitPlayground.setPixelColor(0, 0, 0, 255);
-
-  // }
-
-  // // Send Serial Monitor messages back to the phone
-  // if (Serial.available()) {
-  //   char c = Serial.read();
-  //   bleuart.write(c);
-  //   bleuart.write("clock2: " + 4);
-  // }
-
-  // String packet = "@1:Heartbeat" + String(inputValue);
-  // bleuart.println(inputValue);
-  // bleuart.println(packet);
-  // Serial.println(inputValue);
-  
-
-  //delay(1000);
 }
