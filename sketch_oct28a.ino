@@ -12,12 +12,25 @@ int totalHeartBeats = 0;
 int heartBeatsThisRound = 0;
 int BPM = 0;
 int updateTimer = 20;
-int canCalculate = true;
 int bpmCalculated = 0;
 int valueCount = 0;
 int totalValue = 0;
 int timerActive = 0;
 int clock = 0;
+int lastIntervalValue = 0;
+int totalIntervalValue = 0;
+int intervalRange = 0.15; //percentage
+
+intervalValue[0] = 0;
+intervalValue[1] = 0;
+intervalValue[2] = 0;
+intervalValue[3] = 0;
+intervalValue[4] = 0;
+intervalValue[5] = 0;
+intervalValue[6] = 0;
+intervalValue[7] = 0;
+intervalValue[8] = 0;
+intervalValue[9] = 0;
 
 const unsigned long intervalBeginAfterFive = 20000;
 const unsigned long intervalGetValue = 10;
@@ -31,6 +44,18 @@ void checkForHeartBeat() {
   if (lastValue < averageValue * 1.5 && inputValue >= averageValue * 1.5) {
     totalHeartBeats += 1;
     heartBeatsThisRound += 1;
+    //check for missed beats
+    lastIntervalValue = currentMillis - totalIntervalValue;
+    if (lastIntervalValue >= 3) {
+      for (int i = 0; i < 10; i++) {
+        if (lastIntervalValue * (i + 1) < BPM * 20000 * (i + 1) * (1 + intervalRange) &&
+            lastIntervalValue * (i + 1) > BPM * 20000 * (i + 1) * (1 - intervalRange)) {
+              totalHeartBeats += i;
+              heartBeatsThisRound += i;
+        }
+      }
+    }
+    totalIntervalValue += lastIntervalValue;
   }
 }
 
