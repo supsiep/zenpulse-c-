@@ -43,7 +43,12 @@ void calculateBPM() {
   BPM = heartBeatsThisRound * 60 / updateTimer;
   heartBeatsThisRound = 0;
   //Serial.println("BPM: " + BPM);
-  bleuart.println("BPM: " + BPM);
+  bleuart.println("---------------");
+  bleuart.print("BPM: ");
+  bleuart.println(BPM);
+  bleuart.print("timer: ");
+  bleuart.print(clock);
+  bleuart.println(" minutes.");
 }
 
 void alarm() {
@@ -103,6 +108,12 @@ void loop() {
 
   unsigned long currentMillis = millis();
 
+  if (currentMillis - previousTimer >= intervalTimer) {
+    if (clock > 0) {
+      clock--;
+    }
+  }
+
   if (previousBeginAfterFive - currentMillis >= intervalBeginAfterFive) {
     previousBeginAfterFive += intervalBeginAfterFive;
    if (currentMillis >= 100000) {
@@ -129,13 +140,6 @@ void loop() {
     //Serial.println(totalHeartBeats);
   }
 
-  
-
-  if (currentMillis - previousTimer >= intervalTimer) {
-    if (clock > 0) {
-      clock--;
-    }
-  }
 
   /*
   if (curruntMillis - previousButtons >= intervalButtons) {
