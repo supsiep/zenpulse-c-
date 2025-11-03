@@ -22,7 +22,7 @@ int clock = 0;
 
 const unsigned long intervalBeginAfterFive = 20000;
 const unsigned long intervalGetValue = 10;
-const unsigned long intervalTimer = 1000;
+const unsigned long intervalTimer = 60000;
 
 unsigned long previousBeginAfterFive = 0;
 unsigned long previousGetValue = 0;
