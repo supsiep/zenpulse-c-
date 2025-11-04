@@ -58,6 +58,13 @@ void calculateBPM() {
   bleuart.print("timer: ");
   bleuart.print(clock);
   bleuart.println(" minutes.");
+  if (BPM > 100) {
+    bleuart.println("Je hartslag is the hoog. Neem rust.");
+  } else if (BPM < 60) {
+    bleuart.println("Je hartslag is the laag. Neem rust.");
+  } else if (clock == 0 && timerActive) {
+    bleuart.println("Je timer is af gegaan. Neem rust");
+  }
 }
 
 void alarm() {
@@ -119,6 +126,8 @@ void setup() {
   Bluefruit.Advertising.start(0);
 
   Serial.println("Waiting for BLE connection...");
+
+  bleuart.println("Type een getal om een timer te zetten voor zoveel minuten.");
 
   Serial.begin(115200);
   while (!Serial) delay(10);
