@@ -57,7 +57,7 @@ void calculateBPM() {
   bleuart.println(BPM);
   bleuart.print("timer: ");
   bleuart.print(clock);
-  bleuart.println(" minutes.");
+  bleuart.println(" minutes");
   if (BPM > 100) {
     bleuart.println("Je hartslag is the hoog. Neem rust.");
   } else if (BPM < 60) {
