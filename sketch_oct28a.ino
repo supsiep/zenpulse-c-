@@ -57,17 +57,28 @@ void calculateBPM() {
   BPM = heartBeatsThisRound * 60 / updateTimer;
   heartBeatsThisRound = 0;
   bleuart.println("--------------------");
-  bleuart.print("BPM: ");
-  bleuart.println(BPM);
-  bleuart.print("timer: ");
-  bleuart.print(clock);
-  bleuart.println(" minutes");
+  if (bpmCalculated >= 5) {
+    bleuart.print("BPM: ");
+    bleuart.println(BPM);
+  } else {
+    bleuart.println("Calculating BPM...");
+  }
+  if (timerActive) {
+    bleuart.print("timer: ");
+    bleuart.print(clock);
+    bleuart.println(" minutes");
+  }
   if (BPM > 100) {
-    bleuart.println("Je hartslag is the hoog. Neem rust.");
+    bleuart.println("Your BPM is too high. Take a break.");
   } else if (BPM < 60) {
-    bleuart.println("Je hartslag is the laag. Neem rust.");
+    bleuart.println("Your BPM is too low. Take a break.");
   } else if (clock == 0 && timerActive) {
-    bleuart.println("Je timer is af gegaan. Neem rust");
+    bleuart.println("Your timer went off. Take a break.");
+  }
+  if (bpmCalculated <= 3) {
+    bleuart.print("Type a number to set a ");
+    bleuart.println("timer for that amount of minutes.");
+    bleuart.println("Type 'off' to turn off the device and type 'on' to turn it back on again.");
   }
 }
 
@@ -189,12 +200,12 @@ void loop() {
     if (switchValue == 231 && switchState == 0) {
       switchState = 1;
       millisOffDifference = millisOffDifference + (currentMillis - millisWhenSwitchedOff);
-      bleuart.println("You turned the device on.");
+      bleuart.println("Device turned on.");
     } 
     if (switchValue == 325 && switchState == 1) {
       switchState = 0;
       millisWhenSwitchedOff = currentMillis;
-      bleuart.println("You turned the device off.");
+      bleuart.println("Device turned off.");
     } 
     if (input == 10) {
       switchValue = 0;
