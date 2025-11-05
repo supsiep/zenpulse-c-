@@ -69,10 +69,10 @@ void calculateBPM() {
     bleuart.print(clock);
     bleuart.println(" minutes");
   }
-  if (BPM > 100) {
+  if (BPM > 100 && bpmCalculated >= 5) {
     bleuart.print("Your BPM is too high. ");
     bleuart.println("Take a break.");
-  } else if (BPM < 60) {
+  } else if (BPM < 60 && bpmCalculated >= 5) {
     bleuart.print("Your BPM is too low. ");
     bleuart.println("Take a break.");
   } else if (clock == 0 && timerActive) {
@@ -219,7 +219,7 @@ void loop() {
       millisWhenSwitchedOff = currentMillis;
       bleuart.println("Device turned off.");
     } 
-    if (wordCalue == 228) {
+    if (wordValue == 228) {
       tutorialRead = true;
     }
     if (input == 10) {
