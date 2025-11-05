@@ -17,10 +17,14 @@ int valueCount = 0;
 int totalValue = 0;
 int timerActive = 0;
 int clock = 0;
+int switchValue = 0;
+int switchState = 1;
 int lastIntervalValue = 0;
 int totalIntervalValue = 0;
 int intervalRange = 0.15; //percentage
 unsigned long currentMillis = 0;
+unsigned long millisWhenSwitchedOff = 0;
+unsigned long millisOffDifference = 0;  //time that the device has been off
 
 const unsigned long intervalBeginAfterFive = 20000;
 const unsigned long intervalGetValue = 10;
@@ -35,7 +39,7 @@ void checkForHeartBeat() {
     totalHeartBeats += 1;
     heartBeatsThisRound += 1;
     //check for missed beats
-    lastIntervalValue = currentMillis - totalIntervalValue;
+    lastIntervalValue = (currentMillis - millisOffDifference) - totalIntervalValue;
     if (lastIntervalValue >= 3) {
       for (int i = 0; i < 10; i++) {
         if (lastIntervalValue * (i + 1) < 20000 / (BPM / 3) * (i + 1) * (1 + intervalRange) &&
@@ -118,7 +122,7 @@ void setup() {
 
   bleuart.begin();
 
-  // bluetooth op app
+  // bluetooth in app
   Bluefruit.Advertising.addFlags(BLE_GAP_ADV_FLAGS_LE_ONLY_GENERAL_DISC_MODE);
   Bluefruit.Advertising.addTxPower();
   Bluefruit.Advertising.addService(bleuart);
@@ -127,7 +131,8 @@ void setup() {
 
   Serial.println("Waiting for BLE connection...");
 
-  bleuart.println("Type een getal om een timer te zetten voor zoveel minuten.");
+  bleuart.println("Type a number to set a timer for that amount of minutes.");
+  bleuart.println("Type 'off' to turn off the device and type 'on' to turn it back on again.");
 
   Serial.begin(115200);
   while (!Serial) delay(10);
@@ -138,7 +143,7 @@ void loop() {
 
   currentMillis = millis();
 
-  if (currentMillis - previousTimer >= intervalTimer) {
+  if ((currentMillis - millisOffDifference) - previousTimer >= intervalTimer && switchState == 1) {
     previousTimer += intervalTimer;
     if (clock > 0) {
       clock--;
@@ -148,7 +153,7 @@ void loop() {
     }
   }
 
-  if (currentMillis - previousBeginAfterFive >= intervalBeginAfterFive) {
+  if ((currentMillis - millisOffDifference) - previousBeginAfterFive >= intervalBeginAfterFive && switchState == 1) {
     previousBeginAfterFive += intervalBeginAfterFive;
    if (currentMillis >= 0) {
       calculateBPM();
@@ -159,7 +164,7 @@ void loop() {
     }
   }
 
-  if (currentMillis - previousGetValue >= intervalGetValue) {
+  if ((currentMillis - millisOffDifference) - previousGetValue >= intervalGetValue && switchState == 1) {
     previousGetValue += intervalGetValue;
     lastValue = inputValue;
     inputValue = analogRead(A1);
@@ -178,13 +183,30 @@ void loop() {
   while (bleuart.available()) {
 
     int input = bleuart.read();
+
+    //on / off switch
+    switchValue = switchValue + input;
+    if (switchValue == 231 && switchState == 0) {
+      switchState = 1;
+      millisOffDifference = millisOffDifference + (currentMillis - millisWhenSwitchedOff);
+      bleuart.println("You turned the device on.");
+    } 
+    if (switchValue == 325 && switchState == 1) {
+      switchState = 0;
+      millisWhenSwitchedOff = currentMillis;
+      bleuart.println("You turned the device off.");
+    } 
+    if (input == 10) {
+      switchValue = 0;
+    }
+
+    //define clock value
     input = input - 48;
-    
-    if (((input >= 0 && input <= 9) || input == -38) && !timerActive) {
+    if (((input >= 0 && input <= 9) || input == -38) && !timerActive && switchState == 1) {
       if (input != -38) {
         clock = clock * 10;
         clock += input;
-      } else {
+      } else if (clock > 0) {
         Serial.println(clock);
         timerActive = true;
         if (clock > 1440) {
@@ -202,7 +224,7 @@ void loop() {
     CircuitPlayground.setPixelColor(clock, 0, 0, 255);
   }
 
-  // lees input clock?
+  // read input clock? don't know but it won't work without this
   if (Serial.available()) {
     clock = Serial.read();
     bleuart.write(clock);
