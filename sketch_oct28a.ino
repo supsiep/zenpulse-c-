@@ -58,7 +58,7 @@ void calculateBPM() {
   BPM = heartBeatsThisRound * 60 / updateTimer;
   heartBeatsThisRound = 0;
   bleuart.println("--------------------");
-  if (bpmCalculated >= 5) {
+  if (bpmCalculated >= 4) {
     bleuart.print("BPM: ");
     bleuart.println(BPM);
   } else {
@@ -69,10 +69,10 @@ void calculateBPM() {
     bleuart.print(clock);
     bleuart.println(" minutes");
   }
-  if (BPM > 100 && bpmCalculated >= 5) {
+  if (BPM > 100 && bpmCalculated >= 4) {
     bleuart.print("Your BPM is too high. ");
     bleuart.println("Take a break.");
-  } else if (BPM < 60 && bpmCalculated >= 5) {
+  } else if (BPM < 60 && bpmCalculated >= 4) {
     bleuart.print("Your BPM is too low. ");
     bleuart.println("Take a break.");
   } else if (clock == 0 && timerActive) {
@@ -247,7 +247,6 @@ void loop() {
     }
 
     bleuart.write(clock);
-    CircuitPlayground.setPixelColor(clock, 0, 0, 255);
   }
 
   // read input clock? don't know but it won't work without this
