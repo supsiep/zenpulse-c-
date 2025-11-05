@@ -15,10 +15,11 @@ int updateTimer = 20;
 int bpmCalculated = 0;
 int valueCount = 0;
 int totalValue = 0;
-int timerActive = 0;
+bool timerActive = false;
 int clock = 0;
-int switchValue = 0;
-int switchState = 1;
+int wordValue = 0;
+bool deviceOn = true;
+bool tutorialRead = false;
 int lastIntervalValue = 0;
 int totalIntervalValue = 0;
 int intervalRange = 0.15; //percentage
@@ -78,14 +79,17 @@ void calculateBPM() {
     bleuart.print("Your timer went off. ");
     bleuart.println("Take a break.");
   }
-  if (bpmCalculated <= 3) {
+  if (!tutorialRead) {
+    bleuart.println(" ");
     bleuart.print("Type a number to set a ");
     bleuart.print("timer for that amount ");
     bleuart.println("of minutes.");
     bleuart.print("Type 'off' to turn off");
-    bleuart.println(" the device ");
+    bleuart.print(" the device and ");
     bleuart.print("type 'on' to turn it");
     bleuart.println(" back on again.");
+    bleuart.print("If you understand this,");
+    bleuart.println(" type 'ok'.");
   }
 }
 
@@ -161,7 +165,7 @@ void loop() {
 
   currentMillis = millis();
 
-  if ((currentMillis - millisOffDifference) - previousTimer >= intervalTimer && switchState == 1) {
+  if ((currentMillis - millisOffDifference) - previousTimer >= intervalTimer && deviceOn) {
     previousTimer += intervalTimer;
     if (clock > 0) {
       clock--;
@@ -171,7 +175,7 @@ void loop() {
     }
   }
 
-  if ((currentMillis - millisOffDifference) - previousBeginAfterFive >= intervalBeginAfterFive && switchState == 1) {
+  if ((currentMillis - millisOffDifference) - previousBeginAfterFive >= intervalBeginAfterFive && deviceOn) {
     previousBeginAfterFive += intervalBeginAfterFive;
    if (currentMillis >= 0) {
       calculateBPM();
@@ -182,7 +186,7 @@ void loop() {
     }
   }
 
-  if ((currentMillis - millisOffDifference) - previousGetValue >= intervalGetValue && switchState == 1) {
+  if ((currentMillis - millisOffDifference) - previousGetValue >= intervalGetValue && deviceOn) {
     previousGetValue += intervalGetValue;
     lastValue = inputValue;
     inputValue = analogRead(A1);
@@ -204,24 +208,27 @@ void loop() {
     Serial.println(input);
 
     //on / off switch
-    switchValue = switchValue + input;
-    if (switchValue == 231 && switchState == 0) {
-      switchState = 1;
+    wordValue = wordValue + input;
+    if (wordValue == 231 && !deviceOn) {
+      deviceOn = true;
       millisOffDifference = millisOffDifference + (currentMillis - millisWhenSwitchedOff);
       bleuart.println("Device turned on.");
     } 
-    if (switchValue == 325 && switchState == 1) {
-      switchState = 0;
+    if (wordValue == 325 && deviceOn) {
+      deviceOn = false;
       millisWhenSwitchedOff = currentMillis;
       bleuart.println("Device turned off.");
     } 
+    if (wordCalue == 228) {
+      tutorialRead = true;
+    }
     if (input == 10) {
-      switchValue = 0;
+      wordValue = 0;
     }
 
     //define clock value
     input = input - 48;
-    if (((input >= 0 && input <= 9) || input == -38) && !timerActive && switchState == 1) {
+    if (((input >= 0 && input <= 9) || input == -38) && !timerActive && deviceOn) {
       if (input != -38) {
         clock = clock * 10;
         clock += input;
