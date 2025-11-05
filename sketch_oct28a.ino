@@ -69,16 +69,23 @@ void calculateBPM() {
     bleuart.println(" minutes");
   }
   if (BPM > 100) {
-    bleuart.println("Your BPM is too high. Take a break.");
+    bleuart.print("Your BPM is too high. ");
+    bleuart.println("Take a break.");
   } else if (BPM < 60) {
-    bleuart.println("Your BPM is too low. Take a break.");
+    bleuart.print("Your BPM is too low. ");
+    bleuart.println("Take a break.");
   } else if (clock == 0 && timerActive) {
-    bleuart.println("Your timer went off. Take a break.");
+    bleuart.print("Your timer went off. ");
+    bleuart.println("Take a break.");
   }
   if (bpmCalculated <= 3) {
     bleuart.print("Type a number to set a ");
-    bleuart.println("timer for that amount of minutes.");
-    bleuart.println("Type 'off' to turn off the device and type 'on' to turn it back on again.");
+    bleuart.print("timer for that amount ");
+    bleuart.println("of minutes.");
+    bleuart.print("Type 'off' to turn off");
+    bleuart.println(" the device ");
+    bleuart.print("type 'on' to turn it");
+    bleuart.println(" back on again.");
   }
 }
 
@@ -194,6 +201,7 @@ void loop() {
   while (bleuart.available()) {
 
     int input = bleuart.read();
+    Serial.println(input);
 
     //on / off switch
     switchValue = switchValue + input;
